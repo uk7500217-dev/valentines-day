@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>The Invincible Journey | Valentine 2026</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@300;400;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --gold: #d4af37;
+            --deep-red: #660000;
+            --cream: #fff9f0;
+            --glass: rgba(255, 255, 255, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            color: var(--cream);
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden;
+        }
+
+        /* Initial Loading Overlay */
+        #entry-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 2.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .start-btn {
+            background: transparent;
+            border: 1.5px solid var(--gold);
+            color: var(--gold);
+            padding: 18px 45px;
+            border-radius: 50px;
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: 0.5s;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+        }
+
+        .start-btn:hover {
+            background: var(--gold);
+            color: #000;
+            box-shadow: 0 0 40px var(--gold);
+        }
+
+        /* Background Music Controls */
+        #music-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 3000;
+            background: var(--glass);
+            border: 1px solid var(--gold);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+
+        /* The Film Strip Scroll */
+        .reel {
+            display: flex;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scroll-snap-type: x mandatory;
+            width: 100%;
+            height: 100vh;
+            scrollbar-width: none;
+            scroll-behavior: smooth;
+            opacity: 0;
+            transition: opacity 3s ease;
+        }
+
+        .reel::-webkit-scrollbar {
+            display: none;
+        }
+
+        .slide {
+            flex: 0 0 100%;
+            height: 100%;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 30px;
+            position: relative;
+        }
+
+        /* Entrance Animations for Content */
+        .content-wrap {
+            opacity: 0;
+            transform: scale(0.8) translateY(40px);
+            transition: all 1.8s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        .active .content-wrap {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+
+        .day-label {
+            font-size: 0.75rem;
+            letter-spacing: 6px;
+            color: var(--gold);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        h2 {
+            font-family: 'Dancing Script', cursive;
+            font-size: clamp(3rem, 10vw, 4.5rem);
+            margin: 0;
+            color: var(--gold);
+        }
+
+        .token {
+            font-size: 6rem;
+            margin: 25px 0;
+            filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.5));
+        }
+
+        .desc {
+            max-width: 350px;
+            font-style: italic;
+            opacity: 0.7;
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+
+        /* The Final Ask Reveal */
+        #final-ask-overlay {
+            display: none;
+            opacity: 0;
+            transition: opacity 2s ease-in-out;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, #3d0000 0%, #000 100%);
+            z-index: 5000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .big-heart {
+            font-size: 8rem;
+            cursor: pointer;
+            animation: heartPulse 1.5s infinite;
+            filter: drop-shadow(0 0 20px rgba(255, 0, 0, 0.5));
+        }
+
+        @keyframes heartPulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.15);
+                filter: drop-shadow(0 0 50px #ff0000);
+            }
+        }
+
+        .letter-card {
+            background: var(--glass);
+            backdrop-filter: blur(30px);
+            padding: 50px 30px;
+            border-radius: 40px;
+            border: 1px solid var(--gold);
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(100px);
+            transition: 2.5s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        .show-letter .letter-card {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .btn-yes {
+            background: var(--gold);
+            color: #000;
+            border: none;
+            padding: 18px 50px;
+            border-radius: 50px;
+            font-weight: 700;
+            margin-top: 30px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="entry-overlay">
+        <div style="text-align: center;">
+            <p style="letter-spacing: 8px; font-size: 0.8rem; margin-bottom: 10px;">PRESENTING</p>
+            <h1 style="font-family: 'Dancing Script'; font-size: 3.5rem; color: var(--gold); margin: 0 0 40px 0;">Our
+                Invincible Story</h1>
+            <button class="start-btn" onclick="initExperience()">Open My Heart</button>
+        </div>
+    </div>
+
+    <audio id="vibe-music" loop>
+        <source src="until_i_found_you.mp3" type="audio/mpeg">
+    </audio>
+    <button id="music-btn" onclick="controlMusic()">🔊</button>
+
+    <div class="reel" id="mainReel">
+        <div class="slide active">
+            <div class="content-wrap">
+                <div class="day-label">February 7</div>
+                <h2>Rose Day</h2>
+                <div class="token">🌹</div>
+                <p class="desc">Where it all began. A digital bloom to represent a love that never fades.</p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="content-wrap">
+                <div class="day-label">February 8</div>
+                <h2>Propose Day</h2>
+                <div class="token">✨</div>
+                <p class="desc">We mapped our future in the stars and found a universe in each other.</p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="content-wrap">
+                <div class="day-label">February 9</div>
+                <h2>Chocolate Day</h2>
+                <div class="token">🍫</div>
+                <p class="desc">A celebration of every sweet moment we've gathered in our box of memories.</p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="content-wrap">
+                <div class="day-label">February 10</div>
+                <h2>Teddy Day</h2>
+                <div class="token">🧸</div>
+                <p class="desc">The Red & White Cuddle Catalyst. A soft place to land, always.</p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="content-wrap">
+                <div class="day-label">February 11</div>
+                <h2>Promise Day</h2>
+                <div class="token">💍</div>
+                <p class="desc">The 5-second vow. Words that became a contract between our souls.</p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="content-wrap">
+                <div class="day-label">February 12</div>
+                <h2>Hug Day</h2>
+                <div class="token">🫂</div>
+                <p class="desc">The Warmth Radius. When two touches became a single heartbeat.</p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="content-wrap">
+                <div class="day-label">February 13</div>
+                <h2>Kiss Day</h2>
+                <div class="token">💋</div>
+                <p class="desc">Air-kiss velocity. A thousand "Mwahs" flying across the digital wind.</p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="content-wrap">
+                <div class="day-label">The Finale</div>
+                <div class="big-heart" onclick="launchFinalAsk()">❤️</div>
+                <h2 style="font-size: 2rem;">TAP TO SEAL OUR VALENTINE</h2>
+            </div>
+        </div>
+    </div>
+
+    <div id="final-ask-overlay">
+        <div class="letter-card">
+            <h2 style="font-size: 3rem; margin-bottom: 20px;">Be My Valentine?</h2>
+            <p style="font-size: 1.1rem; line-height: 1.8; margin-bottom: 30px;">
+                On this Valentine’s Day, I don’t offer you roses that fade or words that end tonight. I offer you the
+                quiet kind of love—the kind that stays when the world is loud, the kind that chooses you in small
+                moments no one sees. Loving you is not about one day marked on a calendar; it’s about every ordinary day
+                that becomes meaningful just because you exist in it. You are my favorite feeling, today and always.
+            </p>
+            <p style="color: var(--gold); font-family: 'Dancing Script'; font-size: 2.2rem;">Today, Tomorrow, Always.
+            </p>
+            <button class="btn-yes" onclick="theInfiniteRain()">YES, FOREVER</button>
+        </div>
+    </div>
+
+    <script>
+        const audio = document.getElementById('vibe-music');
+        const reel = document.getElementById('mainReel');
+
+        function initExperience() {
+            document.getElementById('entry-overlay').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('entry-overlay').style.display = 'none';
+                reel.style.opacity = '1';
+                document.getElementById('music-btn').style.display = 'flex';
+                audio.play().catch(e => console.log("Audio play blocked"));
+            }, 2500);
+        }
+
+        function controlMusic() {
+            if (audio.paused) { audio.play(); document.getElementById('music-btn').innerText = "🔊"; }
+            else { audio.pause(); document.getElementById('music-btn').innerText = "🔈"; }
+        }
+
+        // Detect Scroll & Apply Fades
+        reel.addEventListener('scroll', () => {
+            const slides = document.querySelectorAll('.slide');
+            slides.forEach((slide) => {
+                const rect = slide.getBoundingClientRect();
+                if (rect.left >= -100 && rect.left <= 100) {
+                    slide.classList.add('active');
+                } else {
+                    slide.classList.remove('active');
+                }
+            });
+        });
+
+        function launchFinalAsk() {
+            const overlay = document.getElementById('final-ask-overlay');
+            overlay.style.display = 'flex';
+            setTimeout(() => {
+                overlay.style.opacity = '1';
+                overlay.classList.add('show-letter');
+            }, 100);
+
+            confetti({ particleCount: 250, spread: 100, origin: { y: 0.6 }, colors: ['#d4af37', '#ff0000'] });
+        }
+
+        function theInfiniteRain() {
+            const duration = 30 * 1000;
+            const end = Date.now() + duration;
+
+            (function frame() {
+                confetti({ particleCount: 150, angle: 60, spread: 70, origin: { x: 0 }, colors: ['#d4af37', '#ff0000', '#ffffff'] });
+                confetti({ particleCount: 150, angle: 120, spread: 70, origin: { x: 1 }, colors: ['#d4af37', '#ff0000', '#ffffff'] });
+
+                if (Date.now() < end) requestAnimationFrame(frame);
+            }());
+
+            document.querySelector('.letter-card h2').innerText = "I Am All Yours! ❤️";
+            document.querySelector('.btn-yes').style.display = 'none';
+        }
+        var duration = 50 * 1000; // 15 seconds
+        var animationEnd = Date.now() + duration;
+        var colors = ['#d4af37', '#ff0000', '#ffffff']; // Gold, Red, White
+
+        (function frame() {
+            var timeLeft = animationEnd - Date.now();
+
+            if (timeLeft <= 0) return; // Stop when time is up
+
+            // Shoot from the left
+            confetti({
+                particleCount: 2,
+                angle: 60,
+                spread: 55,
+                origin: { x: 0 },
+                colors: colors
+            });
+
+            // Shoot from the right
+            confetti({
+                particleCount: 2,
+                angle: 120,
+                spread: 55,
+                origin: { x: 1 },
+                colors: colors
+            });
+
+            requestAnimationFrame(frame); // Keep the loop going
+        }());
+
+
+    </script>
+</body>
+
+</html>
